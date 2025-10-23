@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTrack - Your Personal Fitness Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <span class="logo-icon">💪</span>
+                <h1>FitTrack</h1>
+            </div>
+            <p class="tagline">Your Personal Fitness & Nutrition Assistant</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="calorie-tracking">
+                <span class="tab-icon">🍽️</span>
+                Calorie Tracking
+            </button>
+            <button class="tab-btn" data-tab="personalized-plan">
+                <span class="tab-icon">📊</span>
+                Personalized Plan
+            </button>
+        </nav>
+
+        <!-- Tab Content -->
+        <main class="tab-content">
+            <!-- Tab 1: Calorie Tracking -->
+            <section id="calorie-tracking" class="tab-pane active">
+                <div class="card">
+                    <h2>📸 Upload Your Meal</h2>
+                    <p class="description">Upload an image of your food and we'll analyze its nutritional content</p>
+                    
+                    <!-- Upload Options -->
+                    <div class="upload-options">
+                        <button type="button" class="option-btn active" id="uploadOption">
+                            📁 Upload Image
+                        </button>
+                        <button type="button" class="option-btn" id="cameraOption">
+                            📷 Take Photo
+                        </button>
+                    </div>
+
+                    <!-- File Upload Area -->
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="mealImage" accept="image/*" hidden>
+                        <label for="mealImage" class="upload-label">
+                            <span class="upload-icon">📁</span>
+                            <span class="upload-text">Click to upload or drag & drop</span>
+                            <span class="upload-hint">PNG, JPG, JPEG (Max 5MB)</span>
+                        </label>
+                    </div>
+
+                    <!-- Camera Capture Area -->
+                    <div class="camera-area hidden" id="cameraArea">
+                        <video id="cameraVideo" autoplay playsinline></video>
+                        <canvas id="cameraCanvas" hidden></canvas>
+                        <div class="camera-controls">
+                            <button type="button" id="captureBtn" class="btn-capture">📸 Capture Photo</button>
+                            <button type="button" id="stopCameraBtn" class="btn-secondary">❌ Stop Camera</button>
+                        </div>
+                    </div>
+
+                    <div id="imagePreview" class="image-preview hidden">
+                        <img id="previewImg" src="" alt="Meal preview">
+                        <button id="removeImage" class="btn-secondary">Remove Image</button>
+                    </div>
+
+                    <button id="analyzeBtn" class="btn-primary" disabled>
+                        Analyze Meal
+                    </button>
+                </div>
+
+                <!-- Loading Animation -->
+                <div id="loadingCalorie" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Analyzing your meal...</p>
+                </div>
+
+                <!-- Results -->
+                <div id="calorieResults" class="results hidden">
+                    <div class="card">
+                        <h2>📊 Nutritional Analysis</h2>
+                        
+                        <div id="foodItems" class="food-items">
+                            <!-- Food items will be dynamically inserted here -->
+                        </div>
+
+                        <div class="summary-card">
+                            <h3>🎯 Meal Summary</h3>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <span class="label">Total Calories</span>
+                                    <span class="value" id="totalCalories">0 kcal</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Protein</span>
+                                    <span class="value" id="totalProtein">0g</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Carbs</span>
+                                    <span class="value" id="totalCarbs">0g</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Fats</span>
+                                    <span class="value" id="totalFats">0g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="calorieError" class="error-message hidden"></div>
+            </section>
+
+            <!-- Tab 2: Personalized Plan -->
+            <section id="personalized-plan" class="tab-pane">
+                <div class="card">
+                    <h2>🎯 Create Your Personalized Plan</h2>
+                    <p class="description">Tell us about yourself and your goals</p>
+
+                    <form id="planForm" class="plan-form">
+                        <!-- Current Measurements -->
+                        <div class="form-section">
+                            <h3>📏 Current Measurements</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="currentWeight">Weight (kg) *</label>
+                                    <input type="number" id="currentWeight" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="height">Height (cm) *</label>
+                                    <input type="number" id="height" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="age">Age *</label>
+                                    <input type="number" id="age" min="10" max="120" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender">Gender *</label>
+                                    <select id="gender" required>
+                                        <option value="">Select</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bodyFat">Body Fat % (optional)</label>
+                                    <input type="number" id="bodyFat" step="0.1" min="0" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="activityLevel">Activity Level *</label>
+                                    <select id="activityLevel" required>
+                                        <option value="">Select</option>
+                                        <option value="sedentary">Sedentary (little/no exercise)</option>
+                                        <option value="light">Light (1-3 days/week)</option>
+                                        <option value="moderate">Moderate (3-5 days/week)</option>
+                                        <option value="active">Active (6-7 days/week)</option>
+                                        <option value="very-active">Very Active (2x per day)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Target Measurements -->
+                        <div class="form-section">
+                            <h3>🎯 Target Goals</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="targetWeight">Target Weight (kg) *</label>
+                                    <input type="number" id="targetWeight" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="goal">Primary Goal *</label>
+                                    <select id="goal" required>
+                                        <option value="">Select</option>
+                                        <option value="weight-loss">Weight Loss</option>
+                                        <option value="fat-loss">Fat Loss</option>
+                                        <option value="muscle-building">Muscle Building</option>
+                                        <option value="bulking">Bulking</option>
+                                        <option value="stamina">Stamina Improvement</option>
+                                        <option value="maintenance">Maintenance</option>
+                                        <option value="general-fitness">General Fitness</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="timeline">Target Timeline (optional)</label>
+                                    <input type="text" id="timeline" placeholder="e.g., 3 months, 6 weeks">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Conditions -->
+                        <div class="form-section">
+                            <h3>🏥 Health Information</h3>
+                            <div class="form-group full-width">
+                                <label for="healthConditions">Health Conditions (optional)</label>
+                                <textarea id="healthConditions" rows="3" 
+                                    placeholder="e.g., Asthma, Hypertension, Diabetes, Joint issues, Allergies, etc."></textarea>
+                                <span class="form-hint">This helps us create a safer, more personalized plan</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            Generate My Plan
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Loading Animation -->
+                <div id="loadingPlan" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Creating your personalized plan...</p>
+                </div>
+
+                <!-- Results -->
+                <div id="planResults" class="results hidden">
+                    <div class="card">
+                        <h2>🎯 Your Personalized Fitness Plan</h2>
+                        
+                        <!-- Nutrition Goals -->
+                        <div class="plan-section">
+                            <h3>🍽️ Daily Nutrition Targets</h3>
+                            <div id="nutritionTargets" class="targets-grid">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Exercise Plan -->
+                        <div class="plan-section">
+                            <h3>💪 Exercise Recommendations</h3>
+                            <div id="exercisePlan" class="exercise-content">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Tips & Recommendations -->
+                        <div class="plan-section">
+                            <h3>💡 Key Tips & Recommendations</h3>
+                            <div id="tipsContent" class="tips-content">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <button id="savePlan" class="btn-secondary">
+                            💾 Save Plan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="planError" class="error-message hidden"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Made with ❤️ using Gemini AI | <span id="currentYear"></span></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
