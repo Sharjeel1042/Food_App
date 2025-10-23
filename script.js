@@ -4,7 +4,7 @@
 
 const CONFIG = {
     GEMINI_API_KEY: 'AIzaSyBnAOsVBy64cz77wcMWFol9ZTjPlcFsyJU',
-    GEMINI_API_URL : "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+    GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
     MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
 };
 
@@ -19,8 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeApp() {
-    // Set current year in footer
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    // Set current year in footer (if element exists)
+    const yearElement = document.getElementById('currentYear');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+    }
 
     // Initialize event listeners
     initTabNavigation();
@@ -61,6 +64,7 @@ function initTabNavigation() {
 let cameraStream = null;
 
 function initCalorieTracking() {
+    console.log('Initializing calorie tracking...');
     const mealImageInput = document.getElementById('mealImage');
     const uploadArea = document.getElementById('uploadArea');
     const cameraArea = document.getElementById('cameraArea');
@@ -75,8 +79,12 @@ function initCalorieTracking() {
     const cameraVideo = document.getElementById('cameraVideo');
     const cameraCanvas = document.getElementById('cameraCanvas');
 
+    console.log('Camera option button:', cameraOption);
+    console.log('Upload option button:', uploadOption);
+
     // Toggle between upload and camera options
     uploadOption.addEventListener('click', () => {
+        console.log('Upload option clicked');
         uploadOption.classList.add('active');
         cameraOption.classList.remove('active');
         uploadArea.classList.remove('hidden');
@@ -85,6 +93,7 @@ function initCalorieTracking() {
     });
 
     cameraOption.addEventListener('click', () => {
+        console.log('Camera option clicked');
         cameraOption.classList.add('active');
         uploadOption.classList.remove('active');
         cameraArea.classList.remove('hidden');
@@ -397,15 +406,21 @@ function displayCalorieResults(foodItems) {
 // ========================================
 
 function initPersonalizedPlan() {
+    console.log('Initializing personalized plan...');
     const planForm = document.getElementById('planForm');
     const savePlanBtn = document.getElementById('savePlan');
 
+    console.log('Plan form:', planForm);
+    console.log('Save plan button:', savePlanBtn);
+
     planForm.addEventListener('submit', (e) => {
+        console.log('Form submitted');
         e.preventDefault();
         generatePersonalizedPlan();
     });
 
     savePlanBtn.addEventListener('click', () => {
+        console.log('Save plan clicked');
         savePlanData();
     });
 }
