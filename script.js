@@ -3,7 +3,7 @@
 // ========================================
 
 const CONFIG = {
-    GEMINI_API_KEY: 'AIzaSyBnAOsVBy64cz77wcMWFol9ZTjPlcFsyJU',
+    GEMINI_API_KEY: 'AIzaSyAogO7ktYHnznGGipKHjQeLEL1fwTjnwSU',
     GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
     MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
 };
