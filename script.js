@@ -1,43 +1,30 @@
-// ========================================
-// Configuration & State Management
-// ========================================
-
+// Configuration
 const CONFIG = {
-    GEMINI_API_KEY: 'AIzaSyBnAOsVBy64cz77wcMWFol9ZTjPlcFsyJU',
+    GEMINI_API_KEY: 'AIzaSyAogO7ktYHnznGGipKHjQeLEL1fwTjnwSU',
     GEMINI_API_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
     MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
 };
 
 let currentImageData = null;
 
-// ========================================
-// Initialization
-// ========================================
-
+// Initialize app when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
 function initializeApp() {
-    // Set current year in footer (if element exists)
     const yearElement = document.getElementById('currentYear');
     if (yearElement) {
         yearElement.textContent = new Date().getFullYear();
     }
 
-    // Initialize event listeners
     initTabNavigation();
     initCalorieTracking();
     initPersonalizedPlan();
-    
-    // Load saved form data if exists
     loadSavedFormData();
 }
 
-// ========================================
 // Tab Navigation
-// ========================================
-
 function initTabNavigation() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -46,25 +33,19 @@ function initTabNavigation() {
         button.addEventListener('click', () => {
             const targetTab = button.dataset.tab;
 
-            // Update active button
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Update active pane
             tabPanes.forEach(pane => pane.classList.remove('active'));
             document.getElementById(targetTab).classList.add('active');
         });
     });
 }
 
-// ========================================
-// Tab 1: Calorie Tracking
-// ========================================
-
+// Calorie Tracking
 let cameraStream = null;
 
 function initCalorieTracking() {
-    console.log('Initializing calorie tracking...');
     const mealImageInput = document.getElementById('mealImage');
     const uploadArea = document.getElementById('uploadArea');
     const cameraArea = document.getElementById('cameraArea');
@@ -79,12 +60,7 @@ function initCalorieTracking() {
     const cameraVideo = document.getElementById('cameraVideo');
     const cameraCanvas = document.getElementById('cameraCanvas');
 
-    console.log('Camera option button:', cameraOption);
-    console.log('Upload option button:', uploadOption);
-
-    // Toggle between upload and camera options
     uploadOption.addEventListener('click', () => {
-        console.log('Upload option clicked');
         uploadOption.classList.add('active');
         cameraOption.classList.remove('active');
         uploadArea.classList.remove('hidden');
@@ -93,7 +69,6 @@ function initCalorieTracking() {
     });
 
     cameraOption.addEventListener('click', () => {
-        console.log('Camera option clicked');
         cameraOption.classList.add('active');
         uploadOption.classList.remove('active');
         cameraArea.classList.remove('hidden');
@@ -101,12 +76,10 @@ function initCalorieTracking() {
         startCamera();
     });
 
-    // Handle file input change
     mealImageInput.addEventListener('change', (e) => {
         handleImageUpload(e.target.files[0]);
     });
 
-    // Handle drag and drop
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.style.borderColor = 'var(--primary-color)';
@@ -123,17 +96,14 @@ function initCalorieTracking() {
         handleImageUpload(file);
     });
 
-    // Capture photo from camera
     captureBtn.addEventListener('click', () => {
         capturePhoto(cameraVideo, cameraCanvas);
     });
 
-    // Stop camera
     stopCameraBtn.addEventListener('click', () => {
         stopCamera();
     });
 
-    // Remove image button
     removeImageBtn.addEventListener('click', () => {
         currentImageData = null;
         mealImageInput.value = '';
@@ -143,7 +113,6 @@ function initCalorieTracking() {
         hideResults('calorie');
     });
 
-    // Analyze button
     analyzeBtn.addEventListener('click', () => {
         analyzeMeal();
     });
@@ -153,12 +122,11 @@ async function startCamera() {
     try {
         const video = document.getElementById('cameraVideo');
         
-        // Request camera access
         cameraStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
-                facingMode: 'environment' // Use back camera on mobile
+                facingMode: 'environment'
             }
         });
         
@@ -180,48 +148,38 @@ function stopCamera() {
 }
 
 function capturePhoto(video, canvas) {
-    // Set canvas dimensions to match video
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
-    // Draw video frame to canvas
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Convert canvas to data URL
     currentImageData = canvas.toDataURL('image/jpeg', 0.9);
     
-    // Display preview
     const previewImg = document.getElementById('previewImg');
     previewImg.src = currentImageData;
     
-    // Hide camera, show preview
     document.getElementById('cameraArea').classList.add('hidden');
     document.getElementById('imagePreview').classList.remove('hidden');
     document.getElementById('analyzeBtn').disabled = false;
     
-    // Stop camera
     stopCamera();
-    
     showNotification('Photo captured successfully!', 'success');
 }
 
 function handleImageUpload(file) {
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
         showNotification('Please upload an image file', 'error');
         return;
     }
 
-    // Validate file size
     if (file.size > CONFIG.MAX_FILE_SIZE) {
         showNotification('File size should be less than 5MB', 'error');
         return;
     }
 
-    // Read and display image
     const reader = new FileReader();
     reader.onload = (e) => {
         currentImageData = e.target.result;
@@ -246,7 +204,6 @@ async function analyzeMeal() {
     hideError('calorie');
 
     try {
-        // Prepare the image data (remove data URL prefix)
         const base64Image = currentImageData.split(',')[1];
 
         const prompt = `Analyze this food image and provide detailed nutritional information. For each food item visible:
@@ -281,10 +238,7 @@ Format your response as a JSON array like this:
 ]
 
 Be accurate and realistic with estimates. If you see multiple items, include all of them.`;
-
         const response = await callGeminiAPI(prompt, base64Image);
-        
-        // Parse the response
         const foodItems = parseNutritionResponse(response);
         
         if (foodItems && foodItems.length > 0) {
@@ -303,16 +257,13 @@ Be accurate and realistic with estimates. If you see multiple items, include all
 
 function parseNutritionResponse(response) {
     try {
-        // Extract JSON from the response
         const text = response.trim();
         
-        // Try to find JSON array in the response
         const jsonMatch = text.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
             return JSON.parse(jsonMatch[0]);
         }
         
-        // If direct parsing fails, try to extract from markdown code blocks
         const codeBlockMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
         if (codeBlockMatch) {
             return JSON.parse(codeBlockMatch[1]);
@@ -335,13 +286,11 @@ function displayCalorieResults(foodItems) {
     let totalFats = 0;
 
     foodItems.forEach((food, index) => {
-        // Calculate totals
         totalCalories += food.nutrition.calories || 0;
         totalProtein += food.nutrition.protein || 0;
         totalCarbs += food.nutrition.carbs || 0;
         totalFats += food.nutrition.fats || 0;
 
-        // Create food item card
         const foodCard = document.createElement('div');
         foodCard.className = 'food-item';
         foodCard.innerHTML = `
@@ -392,7 +341,6 @@ function displayCalorieResults(foodItems) {
         foodItemsContainer.appendChild(foodCard);
     });
 
-    // Update summary
     document.getElementById('totalCalories').textContent = `${Math.round(totalCalories)} kcal`;
     document.getElementById('totalProtein').textContent = `${Math.round(totalProtein)}g`;
     document.getElementById('totalCarbs').textContent = `${Math.round(totalCarbs)}g`;
@@ -401,32 +349,22 @@ function displayCalorieResults(foodItems) {
     showResults('calorie');
 }
 
-// ========================================
-// Tab 2: Personalized Plan
-// ========================================
-
+// Personalized Plan
 function initPersonalizedPlan() {
-    console.log('Initializing personalized plan...');
     const planForm = document.getElementById('planForm');
     const savePlanBtn = document.getElementById('savePlan');
 
-    console.log('Plan form:', planForm);
-    console.log('Save plan button:', savePlanBtn);
-
     planForm.addEventListener('submit', (e) => {
-        console.log('Form submitted');
         e.preventDefault();
         generatePersonalizedPlan();
     });
 
     savePlanBtn.addEventListener('click', () => {
-        console.log('Save plan clicked');
         savePlanData();
     });
 }
 
 async function generatePersonalizedPlan() {
-    // Collect form data
     const formData = {
         currentWeight: parseFloat(document.getElementById('currentWeight').value),
         height: parseFloat(document.getElementById('height').value),
@@ -440,7 +378,6 @@ async function generatePersonalizedPlan() {
         healthConditions: document.getElementById('healthConditions').value
     };
 
-    // Save form data to localStorage
     localStorage.setItem('userPlanData', JSON.stringify(formData));
 
     showLoading('plan');
@@ -494,8 +431,6 @@ Provide 5-8 actionable tips covering:
 Format the response clearly with sections separated by "---SECTION---"`;
 
         const response = await callGeminiAPI(prompt);
-        
-        // Parse and display the plan
         displayPersonalizedPlan(response);
 
     } catch (error) {
@@ -508,7 +443,6 @@ Format the response clearly with sections separated by "---SECTION---"`;
 
 function displayPersonalizedPlan(response) {
     try {
-        // Extract nutrition targets (JSON)
         const nutritionMatch = response.match(/\{[\s\S]*?"calories"[\s\S]*?\}/);
         let nutritionTargets = null;
         
@@ -516,25 +450,20 @@ function displayPersonalizedPlan(response) {
             nutritionTargets = JSON.parse(nutritionMatch[0]);
         }
 
-        // Split response into sections
         const sections = response.split(/---SECTION---|#{2,3}/);
 
-        // Display nutrition targets
         if (nutritionTargets) {
             displayNutritionTargets(nutritionTargets);
         } else {
-            // Fallback: try to extract values from text
             displayNutritionTargetsFromText(response);
         }
 
-        // Display exercise plan and tips
         displayExercisePlan(response);
         displayTips(response);
 
         showResults('plan');
     } catch (error) {
         console.error('Error displaying plan:', error);
-        // Show raw response as fallback
         displayRawPlan(response);
         showResults('plan');
     }
@@ -564,7 +493,6 @@ function displayNutritionTargets(targets) {
 }
 
 function displayNutritionTargetsFromText(text) {
-    // Try to extract nutrition values from text
     const caloriesMatch = text.match(/calories?:?\s*(\d+)/i);
     const proteinMatch = text.match(/protein:?\s*(\d+)/i);
     const carbsMatch = text.match(/carbs?:?\s*(\d+)/i);
@@ -584,14 +512,11 @@ function displayNutritionTargetsFromText(text) {
 
 function displayExercisePlan(text) {
     const container = document.getElementById('exercisePlan');
-    
-    // Extract exercise-related content
     const exerciseSection = text.match(/EXERCISE[\s\S]*?(?=KEY TIPS|RECOMMENDATIONS|$)/i);
     
     if (exerciseSection) {
         container.innerHTML = formatTextContent(exerciseSection[0]);
     } else {
-        // Fallback: show relevant parts
         const lines = text.split('\n');
         let exerciseContent = '';
         let capturing = false;
@@ -614,8 +539,6 @@ function displayExercisePlan(text) {
 
 function displayTips(text) {
     const container = document.getElementById('tipsContent');
-    
-    // Extract tips section
     const tipsSection = text.match(/KEY TIPS[\s\S]*$/i) || text.match(/RECOMMENDATIONS[\s\S]*$/i);
     
     if (tipsSection) {
@@ -626,14 +549,12 @@ function displayTips(text) {
 }
 
 function displayRawPlan(text) {
-    // Fallback display method
     document.getElementById('nutritionTargets').innerHTML = '<p>Please see full plan below</p>';
     document.getElementById('exercisePlan').innerHTML = formatTextContent(text);
     document.getElementById('tipsContent').innerHTML = '<p>See exercise plan section above</p>';
 }
 
 function formatTextContent(text) {
-    // Convert markdown-style formatting to HTML
     return text
         .replace(/#{3,4}\s*(.+)/g, '<h4>$1</h4>')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -654,7 +575,6 @@ function loadSavedFormData() {
         try {
             const data = JSON.parse(savedData);
             
-            // Populate form fields
             document.getElementById('currentWeight').value = data.currentWeight || '';
             document.getElementById('height').value = data.height || '';
             document.getElementById('age').value = data.age || '';
@@ -687,10 +607,7 @@ function savePlanData() {
     showNotification('Plan saved successfully!', 'success');
 }
 
-// ========================================
 // API Communication
-// ========================================
-
 async function callGeminiAPI(prompt, imageBase64 = null) {
     const url = `${CONFIG.GEMINI_API_URL}?key=${CONFIG.GEMINI_API_KEY}`;
     
@@ -700,7 +617,6 @@ async function callGeminiAPI(prompt, imageBase64 = null) {
         }]
     };
 
-    // Add image if provided
     if (imageBase64) {
         requestBody.contents[0].parts.push({
             inline_data: {
@@ -710,7 +626,6 @@ async function callGeminiAPI(prompt, imageBase64 = null) {
         });
     }
 
-    // Add text prompt
     requestBody.contents[0].parts.push({
         text: prompt
     });
@@ -731,11 +646,6 @@ async function callGeminiAPI(prompt, imageBase64 = null) {
 
         const data = await response.json();
         
-        // Log the response for debugging
-        console.log('API Response:', data);
-        console.log('Content Parts:', data.candidates[0]?.content?.parts);
-        
-        // Extract text from the correct structure
         if (data.candidates && 
             data.candidates[0]?.content?.parts && 
             data.candidates[0].content.parts[0]?.text) {
@@ -750,9 +660,7 @@ async function callGeminiAPI(prompt, imageBase64 = null) {
     }
 }
 
-// ========================================
 // UI Helper Functions
-// ========================================
 
 function showLoading(section) {
     document.getElementById(`loading${section === 'calorie' ? 'Calorie' : 'Plan'}`).classList.remove('hidden');
@@ -781,7 +689,6 @@ function hideError(section) {
 }
 
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
@@ -800,7 +707,6 @@ function showNotification(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // Remove after 3 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
@@ -809,7 +715,7 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Add CSS animations for notifications
+// Notification animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
