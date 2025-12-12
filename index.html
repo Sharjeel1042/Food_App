@@ -223,36 +223,85 @@
 
                 <!-- Results -->
                 <div id="planResults" class="results hidden">
-                    <div class="card">
-                        <h2>🎯 Your Personalized Fitness Plan</h2>
-                        
-                        <!-- Nutrition Goals -->
-                        <div class="plan-section">
-                            <h3>🍽️ Daily Nutrition Targets</h3>
-                            <div id="nutritionTargets" class="targets-grid">
-                                <!-- Dynamically populated -->
-                            </div>
-                        </div>
-
-                        <!-- Exercise Plan -->
-                        <div class="plan-section">
-                            <h3>💪 Exercise Recommendations</h3>
-                            <div id="exercisePlan" class="exercise-content">
-                                <!-- Dynamically populated -->
-                            </div>
-                        </div>
-
-                        <!-- Tips & Recommendations -->
-                        <div class="plan-section">
-                            <h3>💡 Key Tips & Recommendations</h3>
-                            <div id="tipsContent" class="tips-content">
-                                <!-- Dynamically populated -->
-                            </div>
-                        </div>
-
-                        <button id="savePlan" class="btn-secondary">
+                    <div class="dashboard-header">
+                        <h2>🎯 Your Personalized Fitness Dashboard</h2>
+                        <button id="savePlan" class="btn-save-dashboard">
                             💾 Save Plan
                         </button>
+                    </div>
+
+                    <!-- Dashboard Stats Overview -->
+                    <div class="dashboard-stats">
+                        <div class="stat-card stat-primary">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Current Weight</div>
+                                <div class="stat-value" id="statCurrentWeight">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-success">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Target Weight</div>
+                                <div class="stat-value" id="statTargetWeight">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-warning">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-content">
+                                <div class="stat-label">Daily Calories</div>
+                                <div class="stat-value" id="statCalories">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card stat-info">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-label">BMI</div>
+                                <div class="stat-value" id="statBMI">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <!-- Nutrition Goals Card -->
+                        <div class="dashboard-card nutrition-card">
+                            <div class="card-header">
+                                <h3>🍽️ Daily Nutrition Targets</h3>
+                            </div>
+                            <div id="nutritionTargets" class="nutrition-targets-dashboard">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Exercise Plan Card -->
+                        <div class="dashboard-card exercise-card">
+                            <div class="card-header">
+                                <h3>💪 Weekly Exercise Plan</h3>
+                            </div>
+                            <div id="exercisePlan" class="exercise-content-dashboard">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Progress Timeline Card -->
+                        <div class="dashboard-card progress-card">
+                            <div class="card-header">
+                                <h3>📈 Expected Progress</h3>
+                            </div>
+                            <div id="progressTimeline" class="progress-timeline">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+
+                        <!-- Tips & Recommendations Card -->
+                        <div class="dashboard-card tips-card">
+                            <div class="card-header">
+                                <h3>💡 Key Recommendations</h3>
+                            </div>
+                            <div id="tipsContent" class="tips-content-dashboard">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 

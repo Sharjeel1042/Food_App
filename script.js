@@ -452,6 +452,8 @@ function displayPersonalizedPlan(response) {
 
         const sections = response.split(/---SECTION---|#{2,3}/);
 
+        displayDashboardStats(nutritionTargets);
+        
         if (nutritionTargets) {
             displayNutritionTargets(nutritionTargets);
         } else {
@@ -459,6 +461,7 @@ function displayPersonalizedPlan(response) {
         }
 
         displayExercisePlan(response);
+        displayProgressTimeline();
         displayTips(response);
 
         showResults('plan');
@@ -466,6 +469,24 @@ function displayPersonalizedPlan(response) {
         console.error('Error displaying plan:', error);
         displayRawPlan(response);
         showResults('plan');
+    }
+}
+
+function displayDashboardStats(nutritionTargets) {
+    const savedData = localStorage.getItem('userPlanData');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        
+        document.getElementById('statCurrentWeight').textContent = `${data.currentWeight} kg`;
+        document.getElementById('statTargetWeight').textContent = `${data.targetWeight} kg`;
+        
+        if (nutritionTargets) {
+            document.getElementById('statCalories').textContent = `${nutritionTargets.calories} kcal`;
+        }
+        
+        const heightInMeters = data.height / 100;
+        const bmi = (data.currentWeight / (heightInMeters * heightInMeters)).toFixed(1);
+        document.getElementById('statBMI').textContent = bmi;
     }
 }
 
@@ -541,11 +562,51 @@ function displayTips(text) {
     const container = document.getElementById('tipsContent');
     const tipsSection = text.match(/KEY TIPS[\s\S]*$/i) || text.match(/RECOMMENDATIONS[\s\S]*$/i);
     
-    if (tipsSection) {
-        container.innerHTML = formatTextContent(tipsSection[0]);
+    let tipsText = tipsSection ? tipsSection[0] : text;
+    
+    const tipMatches = tipsText.match(/\d+\.\s*([^\n]+)/g);
+    
+    if (tipMatches && tipMatches.length > 0) {
+        container.innerHTML = tipMatches.map(tip => {
+            const cleanTip = tip.replace(/^\d+\.\s*/, '');
+            const parts = cleanTip.split(':');
+            if (parts.length > 1) {
+                return `<div class="tip-item"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</div>`;
+            }
+            return `<div class="tip-item">${cleanTip}</div>`;
+        }).join('');
     } else {
-        container.innerHTML = formatTextContent(text);
+        container.innerHTML = `<div class="tip-item">${formatTextContent(tipsText)}</div>`;
     }
+}
+
+function displayProgressTimeline() {
+    const savedData = localStorage.getItem('userPlanData');
+    if (!savedData) return;
+    
+    const data = JSON.parse(savedData);
+    const container = document.getElementById('progressTimeline');
+    const currentWeight = data.currentWeight;
+    const targetWeight = data.targetWeight;
+    const weightDiff = Math.abs(currentWeight - targetWeight);
+    const timeline = data.timeline || '12 weeks';
+    
+    const milestones = [
+        { week: 'Week 1-2', title: 'Adaptation Phase', desc: 'Body adjusts to new routine, initial changes begin' },
+        { week: 'Week 3-4', title: 'Momentum Building', desc: `Target: ${(weightDiff * 0.25).toFixed(1)} kg progress` },
+        { week: 'Week 5-8', title: 'Steady Progress', desc: `Target: ${(weightDiff * 0.5).toFixed(1)} kg progress` },
+        { week: 'Week 9-12', title: 'Final Push', desc: `Target: ${targetWeight} kg goal weight` }
+    ];
+    
+    container.innerHTML = milestones.map((milestone, index) => `
+        <div class="timeline-item">
+            <div class="timeline-marker">${index + 1}</div>
+            <div class="timeline-content">
+                <div class="timeline-title">${milestone.week}: ${milestone.title}</div>
+                <div class="timeline-desc">${milestone.desc}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function displayRawPlan(text) {
